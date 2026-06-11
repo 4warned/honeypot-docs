@@ -1,189 +1,131 @@
 # Installation Guide
 
-Complete step-by-step installation guide for HTTP 2026-35273 Honeypot.
+Deployment guide for the PeopleSoft CVE-2026-35273 Honeypot.
 
 ## Prerequisites
 
 ### System Requirements
 
-- **Operating System**: Linux/Unix (Docker support)
+- **Operating System**: Linux (amd64 or arm64)
 - **Docker**: Docker 20.10+ and Docker Compose 2.0+
-- **Python**: Python 3.11+ (if running without Docker)
-- **Network Access**: Access to network interface for the honeypot
+- **Network Access**: Firewall rules allowing inbound traffic on port 8000
 
-### Network Requirements
+### STINGAR Requirements
 
-- Network interface access
-- Firewall rules allowing traffic to port(s): 8000
+- A registered STINGAR sensor identity (provides `stingar-hp.env` credentials)
+- Network connectivity from the honeypot host to the STINGAR server on port 24224
 
+## Deployment
 
-### CVE Information
-
-This honeypot emulates **CVE-2026-35273**:
-
-- **Vulnerability Description**: Vulnerability in the PeopleSoft Enterprise PeopleTools product of Oracle PeopleSoft (component: Updates Environment Management). Supported versions that are affected are 8.61 and 8.62. Easily exploitable vulnerability allows unauthenticated attacker with network access via HTTP to compromise PeopleSoft Enterprise PeopleTools. Successful attacks of this vulnerability can result in takeover of PeopleSoft Enterprise PeopleTools. CVSS 3.1 Base Score 9.8 (Confidentiality, Integrity and Availability impacts). CVSS Vector: (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H).
-
-
-- **CVSS Score**: 9.8 (CRITICAL)
-
-- **Protocol**: HTTP
-- **Port**: 8000
-
-
-
-### Port Configuration Guidance
-
-
-- **HTTP Default Port**: 80
-- **This Honeypot Port**: 8000
-
-
-
-
-
-**Deployment Recommendation**: 
-
-For maximum realism, consider deploying this honeypot on port **80** (the default HTTP port) instead of 8000. This makes the honeypot more likely to be discovered by attackers scanning for default services.
-
-To change the port:
-1. Edit `docker-compose.yml` and change the port mapping
-2. Edit `default.cfg` and update the `reported_port` setting
-3. Rebuild and restart: `docker compose up -d --build`
-
-
-
-## Installation Methods
-
-### Method 1: Docker Compose (Recommended)
-
-This is the recommended method for production deployments.
-
-#### Step 1: Navigate to Honeypot Directory
+### Step 1: Create a deployment directory
 
 ```bash
-cd honeypots/hp-http-emulates-oracle-20260611-122200-cve-2026-35273
+mkdir -p ~/honeypots/peoplesoft && cd ~/honeypots/peoplesoft
 ```
 
-#### Step 2: Review Configuration
+### Step 2: Create `docker-compose.yml`
+
+```yaml
+services:
+  peoplesoft-honeypot:
+    image: 4warned/hp-peoplesoft:latest
+    depends_on:
+      - fluentbit
+    env_file: stingar-hp.env
+    links:
+      - fluentbit:fluentbit
+    ports:
+      - "8000:8000"
+    environment:
+      - LOG_LEVEL=INFO
+      - HOST=0.0.0.0
+      - PORT=8000
+      - HONEYPOT_TYPE=${HONEYPOT_TYPE:-peoplesoft}
+      - FLUENTBIT_HOST=fluentbit
+      - FLUENTBIT_PORT=${FLUENTBIT_PORT:-24284}
+      - FLUENTBIT_APP=${FLUENTBIT_APP:-stingar}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - honeypot-network
+
+  fluentbit:
+    image: 4warned/fluentbit
+    container_name: fluentbit-peoplesoft
+    env_file: stingar-hp.env
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:24284:24284"
+      - "127.0.0.1:24284:24284/udp"
+    networks:
+      - honeypot-network
+
+networks:
+  honeypot-network:
+    driver: bridge
+```
+
+### Step 3: Configure `stingar-hp.env`
+
+Create a `stingar-hp.env` file with the credentials provided by your STINGAR administrator:
 
 ```bash
-# Review docker-compose.yml
-cat docker-compose.yml
-
-# Review Dockerfile
-cat Dockerfile
+HONEYPOT_IDENT=<your-sensor-uuid>
+HONEYPOT_HOST=<your-hostname>
+HONEYPOT_IP=<your-external-ip>
+HONEYPOT_TYPE=peoplesoft
+TAGS=cve-2026-35273,peoplesoft
+FLUENTD_HOST=<stingar-server-ip>
+FLUENTD_PORT=24224
 ```
 
-#### Step 3: Deploy
+### Step 4: Deploy
 
 ```bash
-# Start the honeypot
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
+docker compose up -d
 ```
 
-#### Step 4: Verify Installation
+### Step 5: Verify
 
 ```bash
-# Check container status
-docker-compose ps
+# Check containers are running
+docker compose ps
 
-# Test connectivity
-curl http://localhost:8000
+# Test the honeypot is responding
+curl http://localhost:8000/ps/signon.html
 ```
 
-### Method 2: Manual Installation (Development)
+You should see the PeopleSoft login page HTML response.
 
-For development or custom builds.
+## Port Configuration
 
-#### Step 1: Install Dependencies
+The default port is **8000**. To change the exposed port, edit the `ports` mapping
+in `docker-compose.yml`:
+
+```yaml
+ports:
+  - "80:8000"    # Expose on standard HTTP port for maximum realism
+```
+
+## Upgrading
 
 ```bash
-# Install Python dependencies
-pip install -r requirements.txt
+# Pull the latest image
+docker compose pull
+
+# Restart with the new image
+docker compose up -d
 ```
 
-#### Step 2: Run Manually
+## Uninstalling
 
 ```bash
-# Run the honeypot
-python honeypot.py --host 0.0.0.0 --port 8000
+docker compose down
 ```
-
-
-
-## Post-Installation
-
-### Verify Detection
-
-Test that the honeypot is responding:
-
-```bash
-# Test HTTP honeypot
-curl http://localhost:8000
-
-# Or use appropriate tool for protocol
-
-curl http://localhost:8000
-
-```
-
-### Check Logs
-
-```bash
-# Docker Compose
-docker-compose logs -f
-
-# Manual installation
-tail -f logs/honeypot.log
-```
-
-## Docker Images
-
-### Building Custom Image
-
-```bash
-# Build Docker image (SBOM + provenance attestations)
-docker buildx build --load --provenance=true --sbom=true -t http-2026-35273-honeypot:latest .
-
-# Run container
-docker run -d -p 8000:8000 http-2026-35273-honeypot:latest
-```
-
-## Upgrade Instructions
-
-### Upgrading Docker Image
-
-```bash
-# Pull latest code (if using git)
-git pull
-
-# Rebuild and restart
-docker-compose up -d --build
-```
-
-## Troubleshooting Installation
-
-### Container Won't Start
-
-- Check Docker logs: `docker-compose logs`
-- Verify port is not already in use
-- Check Docker daemon is running
-
-### Permission Denied
-
-- Ensure Docker has proper permissions
-- Check file permissions in honeypot directory
-
-### Port Already in Use
-
-- Change port in docker-compose.yml
-- Or stop the service using the port
 
 ## Next Steps
 
-- [Configuration Guide](configuration.md) - Customize settings
-- [Running Guide](running.md) - Learn operational procedures
-- [Troubleshooting](troubleshooting.md) - Resolve issues
+- [Configuration Guide](configuration.md) -- customize settings
+- [Running Guide](running.md) -- operation and monitoring
+- [Troubleshooting](troubleshooting.md) -- resolve issues

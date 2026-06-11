@@ -3,7 +3,7 @@ site_description: "Documentation for Ollama LLM Inference Server Honeypot (CVE-2
 site_author: "Forewarned, Inc."
 site_url: https://4warned-honeypots.readthedocs.io/projects/hp-ollama/
 
-docs_dir: honeypots/ollama/docs
+docs_dir: docs
 
 repo_name: 4warned/honeypot-docs
 repo_url: https://github.com/4warned/honeypot-docs

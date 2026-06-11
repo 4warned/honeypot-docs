@@ -1,4 +1,4 @@
-# 4warned Honeypot Documentation
+# STINGAR Honeypot Documentation
 
 Welcome to the public documentation portal for **4warned** honeypot deployments.
 
@@ -9,8 +9,8 @@ log, and report attacker activity to a centralized STINGAR telemetry platform.
 
 | Honeypot | CVE | Service | Port | Status |
 |----------|-----|---------|------|--------|
-| [PeopleSoft](https://4warned-honeypots.readthedocs.io/projects/hp-peoplesoft/) | CVE-2026-35273 | Oracle PeopleSoft PeopleTools 8.62 | 8000 | Active |
-| [Ollama](https://4warned-honeypots.readthedocs.io/projects/hp-ollama/) | CVE-2024-37032 | Ollama LLM Inference Server | 11434 | Active |
+| [PeopleSoft](https://honeypot-docs.readthedocs.io/projects/hp-peoplesoft/en/latest/) | CVE-2026-35273 | Oracle PeopleSoft PeopleTools 8.62 | 8000 | Active |
+| [Ollama](https://honeypot-docs.readthedocs.io/projects/hp-ollama/en/latest/) | CVE-2024-37032 | Ollama LLM Inference Server | 11434 | Active |
 
 ## Architecture
 

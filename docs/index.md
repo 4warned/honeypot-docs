@@ -2,24 +2,29 @@
 
 Welcome to the public documentation portal for **STINGAR** honeypot deployments.
 
-Each honeypot emulates a specific vulnerable service and is designed to detect,
-log, and report attacker activity to a centralized STINGAR telemetry platform.
+Each honeypot emulates a specific vulnerable service or monitors network activity,
+and is designed to detect, log, and report attacker activity to a centralized
+STINGAR telemetry platform.
 
 ## Available Honeypots
 
-| Honeypot | CVE | Service | Port | Status |
-|----------|-----|---------|------|--------|
-| [PeopleSoft](https://honeypot-docs.readthedocs.io/projects/hp-peoplesoft/en/latest/) | CVE-2026-35273 | Oracle PeopleSoft PeopleTools 8.62 | 8000 | Active |
-| [Ollama](https://honeypot-docs.readthedocs.io/projects/hp-ollama/en/latest/) | CVE-2024-37032 | Ollama LLM Inference Server | 11434 | Active |
+| Honeypot | Type | Description | Port | Documentation |
+|----------|------|-------------|------|---------------|
+| PeopleSoft | CVE Emulation | Oracle PeopleSoft RCE (CVE-2026-35273) | 8000 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-peoplesoft/en/latest/) |
+| Ollama | CVE Emulation | Ollama LLM SSRF (CVE-2024-37032) | 11434 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-ollama/en/latest/) |
+| OpenClaw | AI Gateway | WebSocket/JSON-RPC AI agent gateway | 18789 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-openclaw/en/latest/) |
+| MCP Server | AI Infrastructure | Model Context Protocol server with tool poisoning | 3000 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-mcp/en/latest/) |
+| Trainpot | AI Scraper Detection | Detects AI crawlers and LLM training scrapers | 80/443 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-trainpot/en/latest/) |
+| SYNsor | Packet Monitor | Multi-protocol packet monitoring (TCP/ICMP/UDP) | Host | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-synsor/en/latest/) |
 
 ## Architecture
 
 All honeypots follow a common architecture:
 
-- **HTTP-based service emulation** -- realistic endpoints, headers, and error responses
+- **Service emulation** -- realistic protocols, endpoints, headers, and responses
 - **STINGAR integration** -- events forwarded via Fluent Bit sidecar to centralized telemetry
 - **Docker deployment** -- multi-arch images published to [Docker Hub](https://hub.docker.com/)
-- **Event classification** -- each interaction is categorized by type (scan, login attempt, exploit, etc.)
+- **Event classification** -- each interaction is categorized by type (scan, exploit, recon, etc.)
 
 ## Deployment
 
@@ -29,10 +34,11 @@ Each honeypot ships as a Docker Compose stack with two containers:
 2. A Fluent Bit sidecar for STINGAR event forwarding
 
 ```bash
-# Example: deploy the PeopleSoft honeypot
 docker compose up -d
 ```
 
+See individual honeypot documentation for specific deployment instructions.
+
 ## Quick Links
 
-- [Forwarned Home](https://forewarned.io)
+- [Forewarned Home](https://forewarned.io)

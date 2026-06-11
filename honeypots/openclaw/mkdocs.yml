@@ -1,0 +1,38 @@
+site_name: "OpenClaw AI Gateway Honeypot"
+site_description: "Documentation for the OpenClaw AI Gateway Honeypot"
+site_author: "Forewarned, Inc."
+site_url: https://honeypot-docs.readthedocs.io/projects/hp-openclaw/en/latest/
+
+docs_dir: docs
+
+copyright: "Copyright &copy; 2026 Forewarned, Inc."
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - codehilite
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - fenced_code
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+  - Configuration:
+    - Configuration Guide: configuration.md
+  - Usage:
+    - Running the Honeypot: running.md
+  - Architecture:
+    - System Architecture: architecture.md
+  - Troubleshooting:
+    - Common Issues: troubleshooting.md
+  - FAQ: faq.md

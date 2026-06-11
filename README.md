@@ -1,6 +1,6 @@
 # honeypot-docs
 
-Public documentation for [4warned](https://hub.docker.com/u/4warned) honeypot deployments.
+Public documentation for [STINGAR](https://hub.docker.com/u/4warned) honeypot deployments.
 
 Documentation is published via [Read the Docs](https://4warned-honeypots.readthedocs.io/).
 

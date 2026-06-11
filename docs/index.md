@@ -1,6 +1,6 @@
 # STINGAR Honeypot Documentation
 
-Welcome to the public documentation portal for **4warned** honeypot deployments.
+Welcome to the public documentation portal for **STINGAR** honeypot deployments.
 
 Each honeypot emulates a specific vulnerable service and is designed to detect,
 log, and report attacker activity to a centralized STINGAR telemetry platform.
@@ -18,7 +18,7 @@ All honeypots follow a common architecture:
 
 - **HTTP-based service emulation** -- realistic endpoints, headers, and error responses
 - **STINGAR integration** -- events forwarded via Fluent Bit sidecar to centralized telemetry
-- **Docker deployment** -- multi-arch images published to Docker Hub (`4warned/`)
+- **Docker deployment** -- multi-arch images published to [Docker Hub](https://hub.docker.com/u/4warned)
 - **Event classification** -- each interaction is categorized by type (scan, login attempt, exploit, etc.)
 
 ## Deployment

@@ -44,8 +44,6 @@ services:
       - FLUENTBIT_HOST=fluentbit
       - FLUENTBIT_PORT=${FLUENTBIT_PORT:-24284}
       - FLUENTBIT_APP=${FLUENTBIT_APP:-stingar}
-    volumes:
-      - ./logs:/app/logs
     restart: unless-stopped
     networks:
       - honeypot-network

@@ -30,9 +30,6 @@ curl -X POST http://localhost:11434/api/generate -d '{"model":"llama2","prompt":
 ```bash
 # Follow logs
 docker compose logs -f ollama-honeypot
-
-# Local JSON logs
-tail -f logs/honeypot.json | jq .
 ```
 
 ## Event Types

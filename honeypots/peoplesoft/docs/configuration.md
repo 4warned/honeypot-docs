@@ -53,10 +53,7 @@ ports:
 
 ### Log Output
 
-All interactions are logged to:
-
-1. **STINGAR** -- events forwarded via Fluent Bit to your STINGAR server
-2. **Local JSON file** -- written to `./logs/honeypot.json` (mounted volume)
+All interactions are forwarded to your **STINGAR** server via the Fluent Bit sidecar.
 
 ### Log Verbosity
 
@@ -104,8 +101,6 @@ services:
       - FLUENTBIT_HOST=fluentbit
       - FLUENTBIT_PORT=24284
       - FLUENTBIT_APP=stingar
-    volumes:
-      - ./logs:/app/logs
     restart: unless-stopped
     networks:
       - honeypot-network

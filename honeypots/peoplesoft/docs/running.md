@@ -59,18 +59,6 @@ docker compose logs -f peoplesoft-honeypot
 docker compose logs --tail=100
 ```
 
-### Local JSON Logs
-
-Interaction logs are written to `./logs/honeypot.json`:
-
-```bash
-# View recent events
-tail -f logs/honeypot.json | jq .
-
-# Count events
-cat logs/honeypot.json | wc -l
-```
-
 ### STINGAR Events
 
 Events are forwarded to your STINGAR server via the Fluent Bit sidecar.
@@ -110,21 +98,6 @@ docker stats --no-stream
 ```
 
 The honeypot is lightweight -- typical usage is under 50MB RAM and minimal CPU.
-
-## Log Rotation
-
-Local JSON logs will grow over time. Consider setting up log rotation:
-
-```bash
-# Example logrotate config at /etc/logrotate.d/honeypot
-/path/to/honeypot/logs/honeypot.json {
-    daily
-    rotate 14
-    compress
-    missingok
-    notifempty
-}
-```
 
 ## Next Steps
 

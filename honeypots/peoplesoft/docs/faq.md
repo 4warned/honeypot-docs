@@ -76,7 +76,7 @@ headers, event classification, and any detected exploitation patterns.
 ### Can I use it without STINGAR?
 
 Yes. Remove the `fluentbit` service from `docker-compose.yml`. Events will
-still be logged locally to `./logs/honeypot.json`.
+still be logged to the container's stdout (viewable via `docker compose logs`).
 
 ### How do I verify events are reaching STINGAR?
 

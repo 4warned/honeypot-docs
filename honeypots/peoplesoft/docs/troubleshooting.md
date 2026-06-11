@@ -93,27 +93,6 @@ docker compose pull
 - Check that outbound port 24224 (TCP) is allowed by the host firewall
 - Confirm `FLUENTD_HOST` in `stingar-hp.env` is correct
 
-## Log Issues
-
-### No Local JSON Logs
-
-**Problem**: `./logs/honeypot.json` is empty or missing.
-
-**Solutions**:
-
-- Ensure the `./logs` directory exists: `mkdir -p logs`
-- Check volume mount in `docker-compose.yml` maps `./logs:/app/logs`
-- Verify the honeypot is receiving traffic (check container logs)
-
-### Logs Growing Too Large
-
-**Problem**: JSON log file consuming too much disk.
-
-**Solutions**:
-
-- Set up logrotate (see [Running Guide](running.md#log-rotation))
-- Or manually truncate: `> logs/honeypot.json`
-
 ## Debug Mode
 
 To enable verbose logging for diagnosing issues:

@@ -18,7 +18,7 @@ The Docker image supports `linux/amd64` and `linux/arm64`.
 ## Can I run it without STINGAR?
 
 Yes. Remove the `fluentbit` service from `docker-compose.yml`. Events will
-still be logged to `./logs/honeypot.json`.
+still be logged to the container's stdout (viewable via `docker compose logs`).
 
 ## What data is sent to STINGAR?
 

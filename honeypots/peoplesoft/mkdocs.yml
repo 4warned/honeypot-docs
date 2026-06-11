@@ -1,7 +1,7 @@
 site_name: "PeopleSoft CVE-2026-35273 Honeypot"
 site_description: "Documentation for Oracle PeopleSoft PeopleTools 8.62 Honeypot (CVE-2026-35273)"
 site_author: "Forewarned, Inc."
-site_url: https://4warned-honeypots.readthedocs.io/projects/hp-peoplesoft/
+site_url: https://honeypot-docs.readthedocs.io/projects/hp-peoplesoft/en/latest/
 
 docs_dir: docs
 

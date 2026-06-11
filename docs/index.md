@@ -35,5 +35,4 @@ docker compose up -d
 
 ## Quick Links
 
-- [Docker Hub: 4warned](https://hub.docker.com/u/4warned)
-- [STINGAR Platform](https://stingar.security)
+- [Forwarned Home](https://forewarned.io)

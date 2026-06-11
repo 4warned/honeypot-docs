@@ -1,0 +1,42 @@
+site_name: "PeopleSoft CVE-2026-35273 Honeypot"
+site_description: "Documentation for Oracle PeopleSoft PeopleTools 8.62 Honeypot (CVE-2026-35273)"
+site_author: "Forewarned, Inc."
+site_url: https://4warned-honeypots.readthedocs.io/projects/hp-peoplesoft/
+
+docs_dir: honeypots/peoplesoft/docs
+
+repo_name: 4warned/honeypot-docs
+repo_url: https://github.com/4warned/honeypot-docs
+edit_uri: edit/main/honeypots/peoplesoft/docs/
+
+copyright: "Copyright &copy; 2026 Forewarned, Inc."
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - codehilite
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - fenced_code
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: installation.md
+  - Configuration:
+    - Configuration Guide: configuration.md
+  - Usage:
+    - Running the Honeypot: running.md
+  - Architecture:
+    - System Architecture: architecture.md
+  - Troubleshooting:
+    - Common Issues: troubleshooting.md
+  - FAQ: faq.md

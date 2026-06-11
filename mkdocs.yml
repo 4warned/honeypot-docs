@@ -1,0 +1,31 @@
+site_name: "4warned Honeypot Documentation"
+site_description: "Public documentation for 4warned honeypot deployments"
+site_author: "Forewarned, Inc."
+site_url: https://4warned-honeypots.readthedocs.io/
+
+docs_dir: docs
+
+repo_name: 4warned/honeypot-docs
+repo_url: https://github.com/4warned/honeypot-docs
+edit_uri: edit/main/docs/
+
+copyright: "Copyright &copy; 2026 Forewarned, Inc."
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - codehilite
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - fenced_code
+  - md_in_html
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md

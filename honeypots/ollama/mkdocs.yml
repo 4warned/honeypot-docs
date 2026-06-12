@@ -1,7 +1,7 @@
-site_name: "Ollama CVE-2024-37032 Honeypot"
-site_description: "Documentation for Ollama LLM Inference Server Honeypot (CVE-2024-37032)"
+site_name: "Ollama CVE-2024-37032 STINGAR Honeypot"
+site_description: "Documentation for Ollama LLM Inference Server STINGAR Honeypot (CVE-2024-37032)"
 site_author: "Forewarned, Inc."
-site_url: https://honeypot-docs.readthedocs.io/projects/hp-ollama/en/latest/
+site_url: https://hp-ollama.readthedocs.io/en/latest/
 
 docs_dir: docs
 

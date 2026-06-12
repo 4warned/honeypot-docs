@@ -10,12 +10,12 @@ STINGAR telemetry platform.
 
 | Honeypot | Type | Description | Port | Documentation |
 |----------|------|-------------|------|---------------|
-| PeopleSoft | CVE Emulation | Oracle PeopleSoft RCE (CVE-2026-35273) | 8000 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-peoplesoft/en/latest/) |
-| Ollama | CVE Emulation | Ollama LLM SSRF (CVE-2024-37032) | 11434 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-ollama/en/latest/) |
-| OpenClaw | AI Gateway | WebSocket/JSON-RPC AI agent gateway | 18789 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-openclaw/en/latest/) |
-| MCP Server | AI Infrastructure | Model Context Protocol server with tool poisoning | 3000 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-mcp/en/latest/) |
-| Trainpot | AI Scraper Detection | Detects AI crawlers and LLM training scrapers | 80/443 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-trainpot/en/latest/) |
-| SYNsor | Packet Monitor | Multi-protocol packet monitoring (TCP/ICMP/UDP) | Host | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-synsor/en/latest/) |
+| PeopleSoft | CVE Emulation | Oracle PeopleSoft RCE (CVE-2026-35273) | 8000 | [Docs](https://hp-peoplesoft.readthedocs.io/en/latest/) |
+| Ollama | CVE Emulation | Ollama LLM SSRF (CVE-2024-37032) | 11434 | [Docs](https://hp-ollama.readthedocs.io/en/latest/) |
+| OpenClaw | AI Gateway | WebSocket/JSON-RPC AI agent gateway | 18789 | [Docs](https://hp-openclaw.readthedocs.io/en/latest/) |
+| MCP Server | AI Infrastructure | Model Context Protocol server with tool poisoning | 3000 | [Docs](https://hp-mcp.readthedocs.io/en/latest/) |
+| Trainpot | AI Scraper Detection | Detects AI crawlers and LLM training scrapers | 80/443 | [Docs](https://hp-trainpot.readthedocs.io/en/latest/) |
+| SYNsor | Packet Monitor | Multi-protocol packet monitoring (TCP/ICMP/UDP) | Host | [Docs](https://hp-synsor.readthedocs.io/en/latest/) |
 
 ## Architecture
 

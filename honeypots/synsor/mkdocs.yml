@@ -1,7 +1,7 @@
-site_name: "SYNsor Packet Monitoring Honeypot"
-site_description: "Documentation for the SYNsor Multi-Protocol Packet Monitoring Honeypot"
+site_name: "SYNsor Packet Monitoring STINGAR Honeypot"
+site_description: "Documentation for the SYNsor Multi-Protocol Packet Monitoring STINGAR Honeypot"
 site_author: "Forewarned, Inc."
-site_url: https://honeypot-docs.readthedocs.io/projects/hp-synsor/en/latest/
+site_url: https://hp-synsor.readthedocs.io/en/latest/
 
 docs_dir: docs
 

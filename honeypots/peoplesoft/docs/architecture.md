@@ -1,91 +1,110 @@
 # Architecture
 
-Technical architecture of the PeopleSoft CVE-2026-35273 Honeypot.
+Technical architecture and design of HTTP 2026-35273 Honeypot.
 
-## System Overview
+## System Architecture
 
-The honeypot is deployed as a Docker Compose stack with two containers:
+HTTP 2026-35273 Honeypot is a HTTP protocol honeypot designed to emulate network services.
 
-```
-                    Internet
-                       |
-                  Port 8000
-                       |
-            ┌──────────┴──────────┐
-            │  PeopleSoft Honeypot │
-            │  (4warned/hp-        │
-            │   peoplesoft:latest) │
-            └──────────┬──────────┘
-                       |
-               Fluent Forward
-              (port 24284, internal)
-                       |
-            ┌──────────┴──────────┐
-            │    Fluent Bit        │
-            │  (4warned/fluentbit) │
-            └──────────┬──────────┘
-                       |
-              TCP port 24224
-                       |
-            ┌──────────┴──────────┐
-            │   STINGAR Server     │
-            │  (centralized        │
-            │   telemetry)         │
-            └─────────────────────┘
-```
+## Protocol Implementation
 
-## Components
+### HTTP Protocol
 
-### Honeypot Container
+The honeypot implements the **HTTP** protocol with the following characteristics:
 
-Emulates an Oracle PeopleSoft PeopleTools 8.62 instance with:
+- **Primary Port**: 8000
 
-- **PeopleSoft Internet Architecture (PIA)** -- login page, portal servlets
-- **PSEMHUB Environment Management Hub** -- the vulnerable component
-- **Oracle HTTP Server headers** -- X-ORACLE-DMS-ECID, X-ORACLE-DMS-RID, WebLogic identifiers
+- **Protocol Type**: HTTP
+- **Transport Layer**: TCP
 
-### Fluent Bit Sidecar
 
-Receives structured events from the honeypot via Fluent forward protocol
-and transmits them to the STINGAR server for centralized collection and analysis.
+### CVE Emulation: CVE-2026-35273
+
+This honeypot emulates the **CVE-2026-35273** vulnerability:
+
+
+**Vulnerability Description**:
+Vulnerability in the PeopleSoft Enterprise PeopleTools product of Oracle PeopleSoft (component: Updates Environment Management). Supported versions that are affected are 8.61 and 8.62. Easily exploitable vulnerability allows unauthenticated attacker with network access via HTTP to compromise PeopleSoft Enterprise PeopleTools. Successful attacks of this vulnerability can result in takeover of PeopleSoft Enterprise PeopleTools. CVSS 3.1 Base Score 9.8 (Confidentiality, Integrity and Availability impacts). CVSS Vector: (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H).
+
+
+- **CVE ID**: CVE-2026-35273
+- **Protocol**: HTTP
+- **Port**: 8000
+
+- **CVSS Score**: 9.8 (CRITICAL)
+
+
+
+
+
+## Component Overview
+
+### Main Components
+
+1. **Protocol Handler**: Handles HTTP protocol interactions
+
+
+3. **Vulnerability Emulation**: Emulates CVE-2026-35273 vulnerability
+
+4. **Logging System**: Centralized logging infrastructure with multiple backends
+   - **Output Manager**: Centralized interface for all logging backends
+   - **Stingar Output**: Sends events to Stingar via Fluent protocol
+   - **JSON Log Output**: Writes structured events to JSON files
+   - **Console Logging**: Real-time console output
+5. **Configuration Management**: Environment-based and file-based configuration
 
 ## Data Flow
 
-1. Attacker connects to port 8000 (HTTP)
-2. Honeypot processes request and generates realistic PeopleSoft response
-3. Interaction is classified by event type (scan, login, RCE attempt, etc.)
-4. Event is logged locally (JSON) and forwarded to Fluent Bit
-5. Fluent Bit delivers event to STINGAR server
+```
+Client Connection → Protocol Handler → Service Emulation → Response Generation
+                              ↓
+                         Output Manager
+                              ↓
+                    ┌─────────┴─────────┐
+                    ↓                   ↓
+            Stingar/Fluent         JSON File Log
+                    ↓                   ↓
+            Threat Intelligence    Local Analysis
+```
 
-## CVE Emulation: CVE-2026-35273
+### Logging Architecture
 
-The honeypot specifically emulates the Updates Environment Management component
-that is the attack surface for CVE-2026-35273:
+The honeypot uses a centralized output manager that routes events to multiple backends:
 
-- `/PSEMHUB/hub/updates` -- accepts GET (recon) and POST (exploitation)
-- `/PSEMHUB/hub/updates/apply` -- the RCE trigger endpoint
-- `/PSEMHUB/hub/updates/upload` -- malicious payload upload
+1. **Request Parsing**: All incoming requests/commands are parsed into structured data
+2. **Output Manager**: Routes events to enabled backends
+3. **Stingar Backend**: Sends events to Stingar infrastructure (if enabled)
+4. **JSON Log Backend**: Writes events to JSON files (if enabled)
+5. **Console Backend**: Outputs events to console (always enabled)
 
-POST bodies are inspected for known exploitation patterns (Java deserialization,
-shell commands, known attacker tooling) and classified accordingly.
+All logging is protocol-agnostic and works consistently across HTTP, FTP, SMTP, MySQL, and other protocols.
 
-## Detection Capabilities
+## Key Features
 
-The honeypot detects:
 
-- **Reconnaissance** -- accessing PSEMHUB endpoints, version probing
-- **Credential theft** -- login attempts to `/psp/ps/?cmd=login`
-- **Exploitation** -- RCE payloads targeting the Updates Environment Management
-- **Post-exploitation tooling** -- ShinyHunters patterns (`uon_fanout`, `psappsrv.cfg`)
+- HTTP protocol emulation
+
+- Vulnerability emulation: CVE-2026-35273
+
+- Docker containerization
+
+- Docker Compose deployment
+
+- Stingar logging (threat intelligence integration)
+
+- JSON file logging
+
+- Centralized logging infrastructure
+
 
 ## Security Considerations
 
-- The honeypot does not execute any payloads -- it only logs and responds
-- The Fluent Bit sidecar binds only to localhost (127.0.0.1) on the host
-- All containers run with `restart: unless-stopped` for resilience
-- Docker network isolation prevents lateral movement
+- **Non-root User**: Runs as non-root user in Docker
+- **Network Isolation**: Uses Docker networking
+- **Logging**: All interactions are logged
+- **Deceptive Marking**: Code is marked as deceptive
 
 ## Next Steps
 
-- [Configuration](configuration.md) -- customize the deployment
-- [Running Guide](running.md) -- operation and monitoring
+- [Configuration](configuration.md) - Configure the honeypot
+- [Running Guide](running.md) - Learn operational procedures

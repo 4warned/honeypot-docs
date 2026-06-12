@@ -1,105 +1,190 @@
-# Running the Honeypot
+# Running HTTP 2026-35273 Honeypot
 
-Operational guide for the PeopleSoft CVE-2026-35273 Honeypot.
+Guide to running and operating HTTP 2026-35273 Honeypot.
+
 
 ## About CVE-2026-35273
 
-Vulnerability in the PeopleSoft Enterprise PeopleTools product of Oracle PeopleSoft
-(component: Updates Environment Management). Supported versions affected are 8.61
-and 8.62. Unauthenticated attacker with network access via HTTP can achieve full
-system takeover. CVSS 3.1 Base Score 9.8 (Critical).
+
+Vulnerability in the PeopleSoft Enterprise PeopleTools product of Oracle PeopleSoft (component: Updates Environment Management). Supported versions that are affected are 8.61 and 8.62. Easily exploitable vulnerability allows unauthenticated attacker with network access via HTTP to compromise PeopleSoft Enterprise PeopleTools. Successful attacks of this vulnerability can result in takeover of PeopleSoft Enterprise PeopleTools. CVSS 3.1 Base Score 9.8 (Confidentiality, Integrity and Availability impacts). CVSS Vector: (CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H).
+
+
+
+**CVSS Score**: 9.8 (CRITICAL)
+
+
+
+
+**Published**: 2026-06-11
+
+
+
 
 ## Starting the Honeypot
 
+### Docker Compose
+
 ```bash
-docker compose up -d
+# Start in background
+docker-compose up -d
+
+# Start with logs
+docker-compose up
+```
+
+### Manual Execution
+
+```bash
+# Run directly
+python honeypot.py --host 0.0.0.0 --port 8000
 ```
 
 ## Stopping the Honeypot
 
+### Docker Compose
+
 ```bash
-docker compose down
+# Stop containers
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
 ```
 
-## Verifying Operation
+### Manual Execution
+
+```bash
+# Stop with Ctrl+C or
+pkill -f honeypot.py
+```
+
+## Health Checks
 
 ### Check Container Status
 
 ```bash
-docker compose ps
+docker-compose ps
 ```
 
-Both `peoplesoft-honeypot` and `fluentbit-peoplesoft` should show as "Up".
-
-### Test Endpoints
+### Test Connectivity
 
 ```bash
-# PeopleSoft login page
-curl http://localhost:8000/ps/signon.html
 
-# PSEMHUB Environment Management Hub
-curl http://localhost:8000/PSEMHUB/hub
+curl http://localhost:8000
 
-# Updates endpoint (CVE attack surface)
-curl http://localhost:8000/PSEMHUB/hub/updates
 ```
 
-## Monitoring
+
+
+## Log Management
 
 ### View Logs
 
 ```bash
-# Follow all logs
-docker compose logs -f
-
-# View only honeypot logs
-docker compose logs -f peoplesoft-honeypot
+# Follow logs
+docker-compose logs -f
 
 # View last 100 lines
-docker compose logs --tail=100
+docker-compose logs --tail=100
 ```
 
-### STINGAR Events
+### Log Locations
 
-Events are forwarded to your STINGAR server via the Fluent Bit sidecar.
-Verify the sidecar is connected:
+- **Docker**: Container logs via `docker-compose logs`
+- **Manual**: `logs/honeypot.log` in honeypot directory
+
+
+### Stingar Logging
+
+HTTP 2026-35273 Honeypot includes Stingar logging for threat intelligence collection.
+
+#### Viewing Stingar Events
+
+Stingar events are sent to the configured Fluent/Fluent Bit host. To view events:
 
 ```bash
-docker compose logs fluentbit
+# If using Fluent Bit, check Fluent Bit logs
+docker-compose logs fluentbit
+
+# Or query Stingar API (if configured)
+curl http://stingar-api:8080/api/events
 ```
 
-## Event Types
+#### JSON Log Files
 
-The honeypot classifies interactions into the following event types:
-
-| Event Type | Description |
-|------------|-------------|
-| `peoplesoft-scan` | General reconnaissance or 404 access |
-| `peoplesoft-login-attempt` | Credential submission to sign-in page |
-| `peoplesoft-portal` | Portal/content servlet access |
-| `peoplesoft-emhub-probe` | PSEMHUB status or crawl probing |
-| `peoplesoft-emhub-recon` | Updates endpoint reconnaissance |
-| `peoplesoft-rce-attempt` | RCE exploitation attempt detected |
-| `peoplesoft-upload-attempt` | Malicious update upload attempt |
-
-## Health Checks
-
-The container includes a built-in health check that runs every 30 seconds.
-View health status:
+JSON log files are written to the configured location (default: `/var/log/http_2026-35273_honeypot/`):
 
 ```bash
-docker inspect --format='{{.State.Health.Status}}' $(docker compose ps -q peoplesoft-honeypot)
+# View JSON logs
+tail -f /var/log/http_2026-35273_honeypot/http_2026-35273_honeypot.json
+
+# Parse JSON logs
+cat /var/log/http_2026-35273_honeypot/http_2026-35273_honeypot.json | jq .
 ```
 
-## Resource Usage
+#### Log Format
+
+Each log entry contains structured data:
+
+```json
+{
+  "start_time": "2025-11-26T14:51:30.123456",
+  "src_ip": "192.168.1.100",
+  "src_port": 54321,
+  "dst_ip": "0.0.0.0",
+  "dst_port": 8000,
+  "method": "GET",
+  "path": "/",
+  "headers": {...},
+  "args": {...}
+}
+```
+
+#### Stingar Event Structure
+
+Stingar events follow the standard Stingar format:
+
+```json
+{
+  "app": "http_2026-35273_honeypot",
+  "sensor": {
+    "uuid": "identifier",
+    "hostname": "hostname",
+    "tags": {},
+    "asn": ""
+  },
+  "protocol": "http",
+  "start_time": "...",
+  "src_ip": "...",
+  "hp_data": {...}
+}
+```
+
+
+## Monitoring
+
+### Container Status
 
 ```bash
-docker stats --no-stream
+# Check status
+docker-compose ps
+
+# View resource usage
+docker stats
 ```
 
-The honeypot is lightweight -- typical usage is under 50MB RAM and minimal CPU.
+### Log Analysis
+
+```bash
+# Search logs
+docker-compose logs | grep ERROR
+
+# Count connections
+docker-compose logs | grep "Connection from" | wc -l
+```
 
 ## Next Steps
 
-- [Configuration](configuration.md) -- adjust settings
-- [Troubleshooting](troubleshooting.md) -- resolve issues
+- [Configuration](configuration.md) - Customize settings
+- [Monitoring](monitoring.md) - Monitor honeypot operation
+- [Troubleshooting](troubleshooting.md) - Resolve issues

@@ -1,124 +1,225 @@
 # Configuration Guide
 
-Configuration reference for the PeopleSoft CVE-2026-35273 Honeypot.
+Complete configuration reference for HTTP 2026-35273 Honeypot.
 
-## Configuration Files
+## Configuration Overview
 
-The honeypot requires two configuration files:
-
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | Container orchestration, ports, networking |
-| `stingar-hp.env` | STINGAR sensor credentials and telemetry routing |
+HTTP 2026-35273 Honeypot uses environment variables and configuration files for customization.
 
 ## Environment Variables
 
-### docker-compose.yml Variables
+### Required Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `HOST` | `0.0.0.0` | Bind address inside the container |
-| `PORT` | `8000` | Listen port inside the container |
-| `LOG_LEVEL` | `INFO` | Logging verbosity (`DEBUG`, `INFO`, `WARNING`, `ERROR`) |
-| `HONEYPOT_TYPE` | `peoplesoft` | Honeypot type identifier sent to STINGAR |
-| `FLUENTBIT_HOST` | `fluentbit` | Fluent Bit sidecar hostname |
-| `FLUENTBIT_PORT` | `24284` | Fluent Bit forward input port |
-| `FLUENTBIT_APP` | `stingar` | Fluent Bit application tag |
+These variables must be set for the honeypot to function:
 
-### stingar-hp.env Variables
+```bash
+# Basic Configuration
+HOST=0.0.0.0
+PORT=8000
+```
 
-| Variable | Description |
-|----------|-------------|
-| `HONEYPOT_IDENT` | Unique sensor UUID (provided by STINGAR admin) |
-| `HONEYPOT_HOST` | Human-readable sensor hostname |
-| `HONEYPOT_IP` | External IP address of the honeypot host |
-| `HONEYPOT_TYPE` | Sensor type (`peoplesoft`) |
-| `TAGS` | Comma-separated tags for filtering (e.g., `cve-2026-35273,peoplesoft`) |
-| `FLUENTD_HOST` | STINGAR server IP/hostname |
-| `FLUENTD_PORT` | STINGAR Fluent forward port (default: `24224`) |
+### Optional Variables
+
+```bash
+# Logging
+LOG_LEVEL=INFO
+LOG_FILE=logs/honeypot.log
+
+# Advanced
+DEBUG=false
+```
+
+## Docker Compose Configuration
+
+### Basic Configuration
+
+The `docker-compose.yml` file includes:
+
+```yaml
+services:
+  honeypot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+```
+
+
+### Available Environment Variables
+
+
+- `LOG_LEVEL`: Configuration option
+
+- `HOST`: Configuration option
+
+- `PORT`: Configuration option
+
+- `HONEYPOT_TYPE`: Configuration option
+
+- `FLUENTBIT_HOST`: Configuration option
+
+- `FLUENTBIT_PORT`: Configuration option
+
+- `FLUENTBIT_APP`: Configuration option
+
+
 
 ## Port Configuration
 
-### Changing the External Port
+### Honeypot Ports
 
-Edit `docker-compose.yml` to change which host port maps to the container:
+- **Primary Port**: 8000 (HTTP)
+
+
+
+### CVE-Specific Configuration
+
+- **CVE ID**: CVE-2026-35273
+- **Protocol**: HTTP
+- **Port**: 8000
+
+- **Vulnerability**: Vulnerability in the PeopleSoft Enterprise PeopleTools product of Oracle PeopleSoft (component: Updates Environment Management). Supported versions that are affected are 8.61 and 8.62. Easily exploita...
+
+
+
+### Changing Ports
+
+Edit `docker-compose.yml`:
 
 ```yaml
 ports:
-  - "80:8000"      # Standard HTTP port (recommended for realism)
-  - "8443:8000"    # Alternative port
+  - "8080:8000"  # Change host port
 ```
 
 ## Logging Configuration
 
-### Log Output
+### Stingar Logging
 
-All interactions are forwarded to your **STINGAR** server via the Fluent Bit sidecar.
+HTTP 2026-35273 Honeypot includes built-in Stingar logging for threat intelligence collection. Stingar logging is **enabled by default**.
 
-### Log Verbosity
+#### Configuration File
 
-Set `LOG_LEVEL` in `docker-compose.yml`:
+The honeypot uses `default.cfg` for logging configuration:
 
-- `DEBUG` -- all requests including health checks
-- `INFO` -- standard operation (recommended)
-- `WARNING` -- only suspicious activity
-- `ERROR` -- only failures
+```ini
+[stingar]
+enabled = True
+fluent_host = fluentbit
+fluent_port = 24284
+app = http_2026-35273_honeypot
+hostname =
+identifier =
+tags =
+asn =
+log_get = False
+```
 
-## Networking
+#### Stingar Configuration Options
 
-### Firewall Rules
+- **enabled**: Enable/disable Stingar logging (default: `True`)
+- **fluent_host**: Fluent/Fluent Bit hostname (default: `fluentbit`)
+- **fluent_port**: Fluent/Fluent Bit port (default: `24284`)
+- **app**: Application identifier for Stingar events
+- **hostname**: Sensor hostname (optional)
+- **identifier**: Sensor UUID/identifier (optional)
+- **tags**: Comma-separated tags (optional, format: `tag1=value1,tag2=value2`)
+- **asn**: ASN number (optional)
+- **log_get**: Log GET requests (default: `False`)
 
-Ensure the following ports are accessible:
+#### JSON File Logging
 
-| Port | Direction | Purpose |
-|------|-----------|---------|
-| 8000 (or custom) | Inbound | Honeypot traffic from attackers |
-| 24224 | Outbound | STINGAR telemetry (Fluent forward) |
+JSON file logging is also enabled by default:
 
-### Docker Network
+```ini
+[jsonlog]
+enabled = True
+json_file = /var/log/http_2026-35273_honeypot/http_2026-35273_honeypot.json
+log_get = False
+```
 
-The honeypot and Fluent Bit sidecar communicate over an internal Docker bridge
-network (`honeypot-network`). No host-level configuration is needed for this.
+#### Logging Backends
 
-## Example: Production Configuration
+The honeypot supports multiple logging backends:
+
+1. **Stingar/Fluent**: Sends events to Stingar infrastructure via Fluent protocol
+2. **JSON File**: Writes structured events to JSON log files
+3. **Console**: Real-time console logging for development
+
+All backends are enabled by default and can be configured independently.
+
+#### Setting Configuration File Location
+
+The honeypot looks for `default.cfg` in the current directory or uses the `CONFIG` environment variable:
+
+```bash
+# Use default location (./default.cfg)
+python honeypot.py
+
+# Use custom config file
+CONFIG=/path/to/config.cfg python honeypot.py
+```
+
+#### Docker Configuration
+
+For Docker deployments, mount the config file:
 
 ```yaml
+volumes:
+  - ./default.cfg:/app/default.cfg
+  - ./logs:/var/log/http_2026-35273_honeypot
+```
+
+## Configuration Examples
+
+### Production Configuration
+
+```yaml
+# docker-compose.yml
 services:
-  peoplesoft-honeypot:
-    image: 4warned/hp-peoplesoft:latest
-    depends_on:
-      - fluentbit
-    env_file: stingar-hp.env
-    links:
-      - fluentbit:fluentbit
+  honeypot:
+    build: .
     ports:
-      - "80:8000"
+      - "8000:8000"
     environment:
-      - LOG_LEVEL=INFO
       - HOST=0.0.0.0
       - PORT=8000
-      - HONEYPOT_TYPE=peoplesoft
-      - FLUENTBIT_HOST=fluentbit
-      - FLUENTBIT_PORT=24284
-      - FLUENTBIT_APP=stingar
+      - LOG_LEVEL=INFO
     restart: unless-stopped
-    networks:
-      - honeypot-network
+```
 
-  fluentbit:
-    image: 4warned/fluentbit
-    container_name: fluentbit-peoplesoft
-    env_file: stingar-hp.env
-    restart: unless-stopped
-    networks:
-      - honeypot-network
+### Development Configuration
 
-networks:
-  honeypot-network:
-    driver: bridge
+```yaml
+# docker-compose.yml
+services:
+  honeypot:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+    volumes:
+      - ./logs:/app/logs
+```
+
+## Configuration Validation
+
+### Verify Configuration
+
+```bash
+# Check Docker Compose configuration
+docker-compose config
+
+# Validate environment variables
+docker-compose config | grep -A 10 environment
 ```
 
 ## Next Steps
 
-- [Running Guide](running.md) -- operation and monitoring
-- [Troubleshooting](troubleshooting.md) -- resolve issues
+- [Running Guide](running.md) - Learn how to run the honeypot
+- [Troubleshooting](troubleshooting.md) - Resolve configuration issues

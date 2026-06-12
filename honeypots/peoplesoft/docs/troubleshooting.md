@@ -1,8 +1,8 @@
 # Troubleshooting
 
-Common issues and solutions for the PeopleSoft CVE-2026-35273 Honeypot.
+Common issues and solutions for HTTP 2026-35273 Honeypot.
 
-## Container Issues
+## Common Issues
 
 ### Container Won't Start
 
@@ -10,115 +10,132 @@ Common issues and solutions for the PeopleSoft CVE-2026-35273 Honeypot.
 
 **Solutions**:
 
-```bash
-# Check logs for error messages
-docker compose logs peoplesoft-honeypot
+- Check Docker logs: `docker-compose logs`
+- Verify port 8000 is not already in use
+- Check Docker daemon is running
+- Review docker-compose.yml for syntax errors
 
-# Verify the image was pulled successfully
-docker images | grep hp-peoplesoft
+### No Connections Detected
 
-# Re-pull the image
-docker compose pull
-```
-
-### Container Keeps Restarting
-
-**Problem**: Container starts but restarts repeatedly.
+**Problem**: Honeypot is running but not detecting connections.
 
 **Solutions**:
 
-- Check if port 8000 is already in use: `lsof -i :8000`
-- Review container logs: `docker compose logs --tail=50 peoplesoft-honeypot`
-- Verify `stingar-hp.env` exists and is readable
+- Verify port 8000 is exposed correctly
+- Check firewall rules allow traffic
+- Verify network connectivity
+- Check logs for errors: `docker-compose logs`
+
+### Port Already in Use
+
+**Problem**: Port 8000 is already in use.
+
+**Solutions**:
+
+- Change port in docker-compose.yml
+- Stop the service using the port
+- Use a different port mapping
+
+## Debug Mode
+
+Enable debug logging:
+
+```bash
+# In docker-compose.yml
+environment:
+  - DEBUG=true
+  - LOG_LEVEL=DEBUG
+```
+
+## Log Analysis
+
+### View Logs
+
+```bash
+# Follow logs
+docker-compose logs -f
+
+# Search for errors
+docker-compose logs | grep ERROR
+
+# View last 50 lines
+docker-compose logs --tail=50
+```
 
 ## Network Issues
 
 ### Port Not Accessible
 
-**Problem**: Cannot reach the honeypot from external hosts.
-
-**Solutions**:
-
-- Verify the container is running: `docker compose ps`
-- Test locally first: `curl http://localhost:8000/ps/signon.html`
-- Check host firewall allows inbound on port 8000
-- Verify port mapping in `docker-compose.yml`
+- Check firewall rules
+- Verify port mapping in docker-compose.yml
+- Test with: `curl http://localhost:8000`
 
 ### Connection Refused
 
-**Problem**: `curl: (7) Failed to connect to localhost port 8000: Connection refused`
+- Verify container is running: `docker-compose ps`
+- Check container logs: `docker-compose logs`
+- Verify port configuration
+
+## Performance Issues
+
+- Check system resources: `docker stats`
+- Review log file sizes
+- Monitor connection rates
+- Adjust Docker resource limits if needed
+
+
+## Logging Issues
+
+### Stingar Events Not Appearing
+
+**Problem**: Stingar events are not being received.
 
 **Solutions**:
 
-- Container may not be running: `docker compose ps`
-- Container may still be starting: wait 15 seconds and retry
-- Port conflict: another service is using port 8000
+- Verify `default.cfg` has `[stingar]` section with `enabled = True`
+- Check Fluent/Fluent Bit host is reachable: `ping fluentbit` or `telnet fluentbit 24284`
+- Verify Fluent Bit service is running: `docker-compose ps fluentbit`
+- Check Fluent Bit logs: `docker-compose logs fluentbit`
+- Verify network connectivity between honeypot and Fluent Bit
+- Check `fluent_host` and `fluent_port` in `default.cfg` match your Fluent Bit configuration
 
-## STINGAR / Telemetry Issues
+### JSON Log Files Not Created
 
-### Events Not Appearing in STINGAR
-
-**Problem**: Honeypot is running but no events show in the STINGAR dashboard.
-
-**Solutions**:
-
-1. Verify Fluent Bit sidecar is running:
-   ```bash
-   docker compose ps fluentbit
-   docker compose logs fluentbit
-   ```
-
-2. Verify `stingar-hp.env` has correct values:
-   - `FLUENTD_HOST` must point to your STINGAR server
-   - `FLUENTD_PORT` should be `24224`
-   - `HONEYPOT_IDENT` must be a valid registered sensor UUID
-
-3. Test network connectivity to STINGAR:
-   ```bash
-   docker compose exec fluentbit nc -zv <STINGAR_SERVER_IP> 24224
-   ```
-
-4. Check the honeypot is actually receiving traffic:
-   ```bash
-   docker compose logs -f peoplesoft-honeypot
-   ```
-
-### Fluent Bit Cannot Connect
-
-**Problem**: Fluent Bit logs show connection errors.
+**Problem**: JSON log files are not being written.
 
 **Solutions**:
 
-- Verify STINGAR server is reachable from the Docker host
-- Check that outbound port 24224 (TCP) is allowed by the host firewall
-- Confirm `FLUENTD_HOST` in `stingar-hp.env` is correct
+- Verify `default.cfg` has `[jsonlog]` section with `enabled = True`
+- Check log directory exists and is writable: `ls -la /var/log/http_2026-35273_honeypot/`
+- Verify log file path in `default.cfg` is correct
+- Check Docker volume mounts include log directory
+- Verify file permissions on log directory
 
-## Debug Mode
+### Output Manager Not Initializing
 
-To enable verbose logging for diagnosing issues:
+**Problem**: Output manager fails to initialize.
 
-```yaml
-environment:
-  - LOG_LEVEL=DEBUG
-```
+**Solutions**:
 
-Then restart:
+- Verify `default.cfg` exists in honeypot directory
+- Check `CONFIG` environment variable points to correct config file
+- Verify `output/` directory exists with `__init__.py`, `stingar.py`, and `jsonlog.py`
+- Check Python imports: `python -c "import output; print(output)"`
+- Verify `fluent-logger` is installed: `pip list | grep fluent-logger`
 
-```bash
-docker compose up -d
-docker compose logs -f peoplesoft-honeypot
-```
+### No Logs in Console
 
-## Getting Help
+**Problem**: Console logging is not appearing.
 
-If issues persist:
+**Solutions**:
 
-1. Collect logs: `docker compose logs > honeypot-debug.log 2>&1`
-2. Note your Docker version: `docker --version`
-3. Note your OS: `uname -a`
-4. Contact your STINGAR administrator with the debug log
+- Console logging is always enabled - check if honeypot is actually receiving connections
+- Verify honeypot is running: `docker-compose ps`
+- Check for Python errors: `docker-compose logs | grep -i error`
+- Verify output manager is being called in protocol handler code
+
 
 ## Next Steps
 
-- [Configuration](configuration.md) -- review settings
-- [FAQ](faq.md) -- common questions
+- [Configuration](configuration.md) - Review configuration
+- [FAQ](faq.md) - Common questions

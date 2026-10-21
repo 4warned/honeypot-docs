@@ -27,6 +27,8 @@ nav:
   - Home: index.md
   - Getting Started:
     - Installation: installation.md
+  - Use Cases:
+    - Agent Message Board: use-case-agent-message-board.md
   - Configuration:
     - Configuration Guide: configuration.md
   - Usage:

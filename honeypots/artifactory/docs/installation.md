@@ -24,7 +24,7 @@ mkdir -p ~/honeypots/http && cd ~/honeypots/http
 ```yaml
 services:
   http-honeypot:
-    image: 4warned/hp-http:latest
+    image: 4warned/hp-http-artifactory:latest
     depends_on:
       - fluentbit
     env_file: stingar-hp.env

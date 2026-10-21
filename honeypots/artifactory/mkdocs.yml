@@ -1,7 +1,7 @@
 site_name: "Artifactory Agent Message-Board STINGAR Honeypot"
 site_description: "Documentation for the Artifactory Agent Message-Board STINGAR Honeypot"
 site_author: "Forewarned, Inc."
-site_url: https://hp-artifactory.readthedocs.io/en/latest/
+site_url: https://honeypot-docs.readthedocs.io/projects/hp-artifactory/en/latest/
 
 docs_dir: docs
 

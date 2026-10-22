@@ -1,0 +1,43 @@
+site_name: WordPress PHP2Shell Honeypot
+site_description: Behavioral bait for PHP2Shell (CVE-2026-109618 / CVE-2026-109619)
+site_author: STINGAR Team
+site_url: https://honeypot-docs.readthedocs.io/projects/hp-php2shell/en/latest/
+
+docs_dir: docs
+
+copyright: Copyright 2026 STINGAR Team
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - codehilite
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true
+  - fenced_code
+  - md_in_html
+
+plugins:
+  - search
+
+extra_javascript:
+  - javascripts/mermaid.min.js
+  - javascripts/mermaid-init.js
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Introduction: index.md
+    - Installation: installation.md
+  - Configuration:
+    - Configuration Guide: configuration.md
+  - Usage:
+    - Running: running.md
+  - Architecture:
+    - System Architecture: architecture.md
+  - Troubleshooting:
+    - Common Issues: troubleshooting.md
+  - FAQ: faq.md

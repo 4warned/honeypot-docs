@@ -15,6 +15,7 @@ STINGAR telemetry platform.
 | OpenClaw | AI Gateway | WebSocket/JSON-RPC AI agent gateway | 18789 | [Docs](https://hp-openclaw.readthedocs.io/en/latest/) |
 | MCP Server | AI Infrastructure | Model Context Protocol server with tool poisoning | 3000 | [Docs](https://hp-mcp.readthedocs.io/en/latest/) |
 | Artifactory Agent Message-Board | AI Infrastructure | JFrog Artifactory decoy for inter-agent message-board TTPs | 8081 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-artifactory/en/latest/) |
+| WordPress PHP2Shell | CVE Emulation | PHP2Shell bait (CVE-2026-109618 / CVE-2026-109619) on WordPress fingerprint | 80 | [Docs](https://honeypot-docs.readthedocs.io/projects/hp-php2shell/en/latest/) |
 | Trainpot | AI Scraper Detection | Detects AI crawlers and LLM training scrapers | 80/443 | [Docs](https://hp-trainpot.readthedocs.io/en/latest/) |
 | SYNsor | Packet Monitor | Multi-protocol packet monitoring (TCP/ICMP/UDP) | Host | [Docs](https://hp-synsor.readthedocs.io/en/latest/) |
 

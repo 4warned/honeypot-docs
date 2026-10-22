@@ -10,8 +10,6 @@ It does **not** run a vulnerable PHP engine and does **not** execute attacker pa
 
 ## Probe flow
 
-![PHP2Shell probe flow](images/probe-flow.svg)
-
 ```mermaid
 sequenceDiagram
   participant Attacker

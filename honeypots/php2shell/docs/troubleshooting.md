@@ -36,6 +36,41 @@ Confirm the image name is `4warned/hp-php2shell:latest` (not an older `hp-http` 
 
 ## Fingerprint / bait issues
 
+### Verify bait probes (curl)
+
+Replace `HOST` with the honeypot address (for local compose use `localhost` or `localhost:8080` if remapped). Successful probes should produce STINGAR `cve_probe` events with the matching `cve_id`.
+
+**1. WordPress fingerprint**
+
+```bash
+curl -sS -D- "http://HOST/" | head -30
+```
+
+Expect `200`, WordPress generator meta, and Apache/PHP-style headers (`X-Powered-By: PHP/8.3.24`).
+
+**2. CVE-2026-109618 (multipart bait)**
+
+```bash
+curl -sS -D- -o /tmp/618.body -X POST "http://HOST/wp-admin/admin-ajax.php" \
+  -F "action=php2shell_upload" \
+  -F "file=@/etc/hosts;filename=shell.php"
+```
+
+Expect `500`, PHP memory-exhaustion HTML, and `Set-Cookie: PHPSESSID=php2shellbait_...`.
+
+**3. CVE-2026-109619 (replay bait PHPSESSID)**
+
+```bash
+COOKIE=$(awk -F': ' 'tolower($1)=="set-cookie"{print $2}' <<< "$(curl -sS -D- -o /dev/null -X POST "http://HOST/wp-admin/admin-ajax.php" -F "action=php2shell_upload" -F "file=@/etc/hosts;filename=shell.php")" | head -1 | cut -d';' -f1)
+
+curl -sS -D- -o /tmp/619.body -X POST "http://HOST/wp-admin/admin-ajax.php" \
+  -H "Cookie: $COOKIE" \
+  -F "action=continue"
+cat /tmp/619.body
+```
+
+Expect `500` and an out-of-memory fatal in `wp-includes/functions.php`. Confirm the body with `cat /tmp/619.body` if you used `-o`.
+
 ### Missing `X-Powered-By: PHP/8.3.24`
 
 ```bash
@@ -46,14 +81,14 @@ If absent, you may be hitting a different service on that port.
 
 ### Multipart probe does not return 500 / PHPSESSID
 
-- Use `Content-Type: multipart/form-data` with a real multipart body
+- Use `Content-Type: multipart/form-data` with a real multipart body (see curl examples above)
 - Target a probe path such as `/wp-admin/async-upload.php` or `/wp-admin/admin-ajax.php`
 - Check logs for `CVE-2026-109618`
 
 ### No `CVE-2026-109619` after cookie replay
 
 - Capture `Set-Cookie: PHPSESSID=php2shellbait_...` from the 618 response
-- Replay that exact cookie value on a follow-up request to the same instance
+- Replay that exact cookie value on a follow-up request to the same instance (see curl example above)
 - Bait tokens are in-memory per process; restarting the container clears them
 
 ## STINGAR / Telemetry
